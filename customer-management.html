@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>拉卡拉国际VCC - 客户管理</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Microsoft YaHei', sans-serif; background-color: #f5f7fa; color: #333; }
+        .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 200px; background: #001529; color: #fff; }
+        .logo { padding: 16px 20px; font-size: 16px; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px; }
+        .menu { padding: 8px 0; }
+        .menu-parent { padding: 12px 20px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; color: rgba(255,255,255,0.65); }
+        .menu-parent:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .menu-parent.active { color: #fff; }
+        .menu-parent .arrow { font-size: 12px; transition: transform 0.2s; }
+        .menu-parent.active .arrow { transform: rotate(90deg); }
+        .menu-children { display: none; background: rgba(0,0,0,0.2); }
+        .menu-children.show { display: block; }
+        .menu-child { padding: 10px 20px 10px 40px; font-size: 14px; cursor: pointer; color: rgba(255,255,255,0.65); }
+        .menu-child:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .menu-child.active { background: #1890ff; color: #fff; }
+        .menu-group { padding: 8px 20px; font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 8px; }
+        .main { margin-left: 200px; }
+        .header { height: 48px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+        .header-title { font-size: 14px; font-weight: 500; }
+        .header-user { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #666; }
+        .content { padding: 24px; }
+        .card { background: #fff; border-radius: 2px; padding: 20px; margin-bottom: 16px; }
+        .card-title { font-size: 16px; font-weight: 500; margin-bottom: 16px; }
+        .form-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+        .form-item { display: flex; align-items: center; gap: 8px; }
+        .form-label { font-size: 13px; color: #666; white-space: nowrap; }
+        .form-input { height: 32px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 2px; font-size: 13px; outline: none; }
+        .form-input:focus { border-color: #1890ff; }
+        .form-select { height: 32px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 2px; font-size: 13px; outline: none; background: #fff; min-width: 120px; }
+        .btn { height: 32px; padding: 0 16px; border: none; border-radius: 2px; font-size: 13px; cursor: pointer; }
+        .btn-primary { background: #1890ff; color: #fff; }
+        .btn-primary:hover { background: #40a9ff; }
+        .btn-default { background: #fff; border: 1px solid #d9d9d9; color: #333; }
+        .btn-default:hover { color: #1890ff; border-color: #1890ff; }
+        .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .table th { text-align: left; padding: 12px 8px; border-bottom: 1px solid #e8e8e8; color: #666; font-weight: 500; }
+        .table td { padding: 12px 8px; border-bottom: 1px solid #f0f0f0; }
+        .table tr:hover { background: #fafafa; }
+        .link { color: #1890ff; cursor: pointer; }
+        .link:hover { text-decoration: underline; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 2px; font-size: 12px; }
+        .tag-green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .tag-yellow { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
+        .tag-red { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+        .page-title { font-size: 20px; font-weight: 500; margin-bottom: 20px; }
+        .tabs { display: flex; gap: 0; border-bottom: 1px solid #e8e8e8; margin-bottom: 20px; background: #fff; padding: 0 20px; }
+        .tab { padding: 14px 20px; font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent; color: #666; }
+        .tab.active { color: #1890ff; border-bottom-color: #1890ff; font-weight: 500; }
+        .tab:hover { color: #1890ff; }
+        .sub-content { display: none; }
+        .sub-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <span style="font-size: 20px; background: #1890ff; color: #fff; padding: 4px 8px; border-radius: 4px;">L</span>
+            <span>拉卡拉 | 运营平台</span>
+        </div>
+        <div class="menu">
+            <div class="menu-parent" onclick="location.href='vcc-account.html'">
+                <span>VCC账户管理</span>
+            </div>
+
+            <div class="menu-parent" onclick="location.href='card-management.html'">
+                <span>卡管理</span>
+            </div>
+
+            <div class="menu-parent" onclick="location.href='product-management.html'">
+                <span>产品管理</span>
+            </div>
+
+            <div class="menu-parent active">
+                <span>客户管理</span>
+            </div>
+
+            <div class="menu-parent" onclick="toggleMenu(this)">
+                <span>交易管理</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="menu-children">
+                <div class="menu-child" onclick="location.href='transaction-management.html'">交易管理</div>
+                <div class="menu-child" onclick="location.href='reconciliation.html'">交易对账</div>
+            </div>
+
+            <div class="menu-parent" onclick="toggleMenu(this)">
+                <span>系统管理</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="menu-children">
+                <div class="menu-child" onclick="location.href='role-permission.html'">角色权限</div>
+                <div class="menu-child" onclick="location.href='operation-log.html'">操作日志</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <span class="header-title">VCC运营平台</span>
+            <div class="header-user">
+                <span>484884@qq.com</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="page-title">客户信息管理</div>
+
+            <!-- Tab Navigation -->
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('customer-query')">客户信息查询</div>
+                <div class="tab" onclick="switchTab('customer-billing')">客户计费配置</div>
+                <div class="tab" onclick="switchTab('customer-detail')">客户详情</div>
+            </div>
+
+            <!-- 客户信息查询 -->
+            <div class="sub-content active" id="content-customer-query">
+                <div class="card">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">商户编号:</span>
+                            <input class="form-input" placeholder="请输入商户编号" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">商户名称:</span>
+                            <input class="form-input" placeholder="请输入商户名称" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">客户状态:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>正常</option>
+                                <option>冻结</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">创建时间:</span>
+                            <input class="form-input" type="date"/>
+                            <span style="margin: 0 8px;">-</span>
+                            <input class="form-input" type="date"/>
+                        </div>
+                        <div class="form-item" style="margin-left: auto;">
+                            <button class="btn btn-primary">查询</button>
+                            <button class="btn btn-default" style="margin-left: 8px;">导出</button>
+                        </div>
+                    </div>
+                    
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>进件ID</th>
+                                <th>商户编号</th>
+                                <th>商户名称</th>
+                                <th>主体类别</th>
+                                <th>客户状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr onclick="switchTab('customer-detail')" style="cursor: pointer;">
+                                <td>002323</td>
+                                <td>LG2603002323</td>
+                                <td>京东国际</td>
+                                <td>香港企业</td>
+                                <td><span class="tag tag-green">正常</span></td>
+                                <td>2026-03-01</td>
+                                <td><span class="link">查看</span></td>
+                            </tr>
+                            <tr onclick="switchTab('customer-detail')" style="cursor: pointer;">
+                                <td>002322</td>
+                                <td>LG2603002324</td>
+                                <td>阿里国际</td>
+                                <td>香港企业</td>
+                                <td><span class="tag tag-green">正常</span></td>
+                                <td>2026-02-15</td>
+                                <td><span class="link">查看</span></td>
+                            </tr>
+                            <tr onclick="switchTab('customer-detail')" style="cursor: pointer;">
+                                <td>002321</td>
+                                <td>LG2603002325</td>
+                                <td>拼多多出海</td>
+                                <td>香港企业</td>
+                                <td><span class="tag tag-green">正常</span></td>
+                                <td>2026-03-18</td>
+                                <td><span class="link">查看</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="display: flex; justify-content: space-between; margin-top: 16px; font-size: 13px; color: #999;">
+                        <span>显示第 1 至 3 项，共 1,248 项</span>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="btn btn-default" style="padding: 0 8px;">&lt;</button>
+                            <button class="btn btn-primary" style="padding: 0 12px;">1</button>
+                            <button class="btn btn-default" style="padding: 0 12px;">2</button>
+                            <button class="btn btn-default" style="padding: 0 8px;">&gt;</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 客户计费配置 -->
+            <div class="sub-content" id="content-customer-billing">
+                <div class="card">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">商户编号:</span>
+                            <input class="form-input" placeholder="请输入商户编号" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">商户名称:</span>
+                            <input class="form-input" placeholder="请输入商户名称" type="text"/>
+                        </div>
+                        <div class="form-item" style="margin-left: auto;">
+                            <button class="btn btn-primary">查询</button>
+                        </div>
+                    </div>
+                    
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>商户编号</th>
+                                <th>商户名称</th>
+                                <th>费用类型</th>
+                                <th>计费模式</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>LG2603002323</td>
+                                <td>京东国际</td>
+                                <td>卡管理费</td>
+                                <td>实时扣款</td>
+                                <td><span class="link" onclick="openBillingModal('京东国际', 'LG2603002323', 'view')">详情</span><span class="link" style="margin-left:8px;" onclick="openBillingModal('京东国际', 'LG2603002323', 'edit')">修改</span></td>
+                            </tr>
+                            <tr>
+                                <td>LG2603002324</td>
+                                <td>阿里国际</td>
+                                <td>卡管理费</td>
+                                <td>实时扣款</td>
+                                <td><span class="link" onclick="openBillingModal('阿里国际', 'LG2603002324', 'view')">详情</span><span class="link" style="margin-left:8px;" onclick="openBillingModal('阿里国际', 'LG2603002324', 'edit')">修改</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 客户详情 -->
+            <div class="sub-content" id="content-customer-detail">
+                <div class="card">
+                    <div class="card-title">客户基本信息 - 京东国际 (LG2603002323)</div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">商户编号</div><div style="font-weight: 500;">LG2603002323</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">商户名称</div><div style="font-weight: 500;">京东国际</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">主体类别</div><div style="font-weight: 500;">香港企业</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">客户状态</div><div><span class="tag tag-green">正常</span></div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">联系电话</div><div style="font-weight: 500;">138****8888</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">邮箱</div><div style="font-weight: 500;">jd@example.com</div></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">账户概览</div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                        <div style="background: #fafafa; padding: 16px; border-radius: 2px;">
+                            <div style="color: #666; font-size: 13px; margin-bottom: 4px;">USD余额</div>
+                            <div style="font-size: 20px; font-weight: 500;">$1,248,502.50</div>
+                        </div>
+                        <div style="background: #fafafa; padding: 16px; border-radius: 2px;">
+                            <div style="color: #666; font-size: 13px; margin-bottom: 4px;">EUR余额</div>
+                            <div style="font-size: 20px; font-weight: 500;">€85,000.00</div>
+                        </div>
+                        <div style="background: #fafafa; padding: 16px; border-radius: 2px;">
+                            <div style="color: #666; font-size: 13px; margin-bottom: 4px;">已开卡数</div>
+                            <div style="font-size: 20px; font-weight: 500;">328</div>
+                        </div>
+                        <div style="background: #fafafa; padding: 16px; border-radius: 2px;">
+                            <div style="color: #666; font-size: 13px; margin-bottom: 4px;">本月消费</div>
+                            <div style="font-size: 20px; font-weight: 500;">$456,230.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <div class="card-title" style="margin-bottom: 0;">发卡数限制</div>
+                        <button class="btn btn-primary" onclick="openCardLimitModal()">修改</button>
+                    </div>
+                    <table class="table" style="border: 1px solid #e8e8e8;">
+                        <thead>
+                            <tr>
+                                <th>卡产品</th>
+                                <th>开卡数上限</th>
+                                <th>已开卡数</th>
+                                <th>剩余可用</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>VISA-广告卡</td>
+                                <td>500</td>
+                                <td>200</td>
+                                <td><span style="color: #52c41a;">300</span></td>
+                            </tr>
+                            <tr>
+                                <td>VISA-物流卡</td>
+                                <td>300</td>
+                                <td>128</td>
+                                <td><span style="color: #52c41a;">172</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 计费配置详情弹窗 -->
+    <div id="viewBillingModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+        <div style="background:#fff; border-radius:4px; padding:24px; width:550px; max-width:90%;">
+            <div style="font-size:16px; font-weight:500; margin-bottom:20px;">计费配置详情 - <span id="viewCustomerName"></span></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+                <div style="background:#fafafa; padding:12px; border-radius:2px;">
+                    <div style="color:#666; font-size:12px; margin-bottom:4px;">费用类型</div>
+                    <div style="font-weight:500;">卡管理费</div>
+                </div>
+                <div style="background:#fafafa; padding:12px; border-radius:2px;">
+                    <div style="color:#666; font-size:12px; margin-bottom:4px;">计费模式</div>
+                    <div style="font-weight:500;">实时扣款</div>
+                </div>
+            </div>
+            <div style="font-weight:500; margin-bottom:12px; color:#333;">各币种费用配置</div>
+            <table class="table" style="border:1px solid #e8e8e8;">
+                <thead>
+                    <tr>
+                        <th>币种</th>
+                        <th>开卡费</th>
+                        <th>销卡费</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>USD</td><td>2.00</td><td>0.00</td></tr>
+                    <tr><td>EUR</td><td>1.80</td><td>0.00</td></tr>
+                    <tr><td>GBP</td><td>1.50</td><td>0.00</td></tr>
+                    <tr><td>HKD</td><td>15.00</td><td>0.00</td></tr>
+                    <tr><td>JPY</td><td>200.00</td><td>0.00</td></tr>
+                </tbody>
+            </table>
+            <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+                <button class="btn btn-default" onclick="closeViewBillingModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 计费配置修改弹窗 -->
+    <div id="editBillingModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+        <div style="background:#fff; border-radius:4px; padding:24px; width:600px; max-width:90%;">
+            <div style="font-size:16px; font-weight:500; margin-bottom:20px;">修改计费配置 - <span id="editCustomerName"></span></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+                <div>
+                    <div style="color:#666; font-size:12px; margin-bottom:4px;">费用类型</div>
+                    <div style="font-weight:500;">卡管理费</div>
+                </div>
+                <div>
+                    <div style="color:#666; font-size:12px; margin-bottom:4px;">计费模式</div>
+                    <select class="form-select" style="width:100%;">
+                        <option>实时扣款</option>
+                        <option>月结</option>
+                    </select>
+                </div>
+            </div>
+            <div style="font-weight:500; margin-bottom:12px; color:#333;">各币种费用配置</div>
+            <table class="table" style="border:1px solid #e8e8e8;">
+                <thead>
+                    <tr>
+                        <th>币种</th>
+                        <th>开卡费</th>
+                        <th>销卡费</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>USD</td>
+                        <td><input type="number" step="0.01" value="2.00" style="width:80px; padding:4px; border:1px solid #d9d9d9; border-radius:2px;"></td>
+                        <td><input type="number" step="0.01" value="0.00" style="width:80px; padding:4px; border:1px solid #d9d9d9; border-radius:2px;"></td>
+                    </tr>
+                    <tr>
+                        <td>EUR</td>
+                        <td><input type="number" step="0.01" value="1.80" style="width:80px; padding:4px; border:1px solid #d9d9d9; border-radius:2px;"></td>
+                        <td><input type="number" step="0.01" value="0.00" style="width:80px; padding:4px; border:1px solid #d9d9d9; border-radius:2px;"></td>
+                    </tr>
+                    <tr>
+                        <td>GBP</td>
+                        <td><input type="number" step="0.01" value="1.50" style="width:80px; padding:4px; border:1px solid #d9d9d9; border-radius:2px;"></td>
+                        <td><input type="number" step="0.01" value="0.00" style="width:80px; padding:4px; border:1px solid #d9d9d9; border-radius:2px;"></td>
+                    </tr>
+                    <tr>
+                        <td>HKD</td>
+                        <td><input type="number" step="0.01" value="15.00" style="width:80px; padding:4px; border:1px solid #d9d9d9; border-radius:2px;"></td>
+                        <td><input type="number" step="0.01" value="0.00" style="width:80px; padding:4px; border:1px solid #d9d9d9; border-radius:2px;"></td>
+                    </tr>
+                    <tr>
+                        <td>JPY</td>
+                        <td><input type="number" step="0.01" value="200.00" style="width:80px; padding:4px; border:1px solid #d9d9d9; border-radius:2px;"></td>
+                        <td><input type="number" step="0.01" value="0.00" style="width:80px; padding:4px; border:1px solid #d9d9d9; border-radius:2px;"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
+                <button class="btn btn-default" onclick="closeEditBillingModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveBillingConfig()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu(el) {
+            el.classList.toggle('active');
+            const nextSibling = el.nextElementSibling;
+            if (nextSibling && nextSibling.classList.contains('menu-children')) {
+                nextSibling.classList.toggle('show');
+            }
+        }
+        
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const contents = document.querySelectorAll('.sub-content');
+            contents.forEach(c => c.classList.remove('active'));
+            document.getElementById('content-' + tabName).classList.add('active');
+        }
+
+        function openBillingModal(customerName, customerId, mode) {
+            if (mode === 'view') {
+                document.getElementById('viewCustomerName').textContent = customerName;
+                document.getElementById('viewBillingModal').style.display = 'flex';
+            } else {
+                document.getElementById('editCustomerName').textContent = customerName;
+                document.getElementById('editBillingModal').style.display = 'flex';
+            }
+        }
+
+        function closeViewBillingModal() {
+            document.getElementById('viewBillingModal').style.display = 'none';
+        }
+
+        function closeEditBillingModal() {
+            document.getElementById('editBillingModal').style.display = 'none';
+        }
+
+        function saveBillingConfig() {
+            alert('计费配置已保存');
+            closeEditBillingModal();
+        }
+
+        function openCardLimitModal() {
+            document.getElementById('cardLimitModal').style.display = 'flex';
+        }
+
+        function closeCardLimitModal() {
+            document.getElementById('cardLimitModal').style.display = 'none';
+        }
+
+        function saveCardLimitConfig() {
+            alert('发卡数限制配置已保存');
+            closeCardLimitModal();
+        }
+    </script>
+
+    <!-- 发卡数限制修改弹窗 -->
+    <div id="cardLimitModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+        <div style="background:#fff; border-radius:4px; padding:24px; width:500px; max-width:90%;">
+            <div style="font-size:16px; font-weight:500; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+                <span>修改发卡数限制 - 京东国际 (LG2603002323)</span>
+                <span style="font-size:20px; color:#999; cursor:pointer;" onclick="closeCardLimitModal()">×</span>
+            </div>
+            <div style="font-weight:500; margin-bottom:12px; color:#333;">各卡产品开卡数上限</div>
+            <table class="table" style="border:1px solid #e8e8e8; margin-bottom:20px;">
+                <thead>
+                    <tr>
+                        <th>卡产品</th>
+                        <th>开卡数上限</th>
+                        <th>已开卡数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>VISA-广告卡</td>
+                        <td><input type="number" value="500" min="0" style="width:100px; padding:4px; border:1px solid #d9d9d9; border-radius:2px;"></td>
+                        <td style="color:#666;">200</td>
+                    </tr>
+                    <tr>
+                        <td>VISA-物流卡</td>
+                        <td><input type="number" value="300" min="0" style="width:100px; padding:4px; border:1px solid #d9d9d9; border-radius:2px;"></td>
+                        <td style="color:#666;">128</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="background:#fffbe6; padding:12px; border-radius:2px; margin-bottom:16px; font-size:12px; color:#666;">
+                <div style="margin-bottom:4px;">说明：</div>
+                <div>• 开卡数上限：指该客户当前可持有的该卡产品最大数量</div>
+                <div>• 已开卡数：当前已发行的该卡产品卡片数量</div>
+                <div>• 修改上限后，不影响已有的卡片，只限制后续开卡数量</div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px;">
+                <button class="btn btn-default" onclick="closeCardLimitModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveCardLimitConfig()">保存</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

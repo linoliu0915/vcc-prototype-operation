@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>拉卡拉国际VCC - 交易管理</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Microsoft YaHei', sans-serif; background-color: #f5f7fa; color: #333; }
+        .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 200px; background: #001529; color: #fff; }
+        .logo { padding: 16px 20px; font-size: 16px; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px; }
+        .menu { padding: 8px 0; }
+        .menu-parent { padding: 12px 20px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; color: rgba(255,255,255,0.65); }
+        .menu-parent:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .menu-parent.active { color: #fff; }
+        .menu-parent .arrow { font-size: 12px; transition: transform 0.2s; }
+        .menu-parent.active .arrow { transform: rotate(90deg); }
+        .menu-children { display: none; background: rgba(0,0,0,0.2); }
+        .menu-children.show { display: block; }
+        .menu-child { padding: 10px 20px 10px 40px; font-size: 14px; cursor: pointer; color: rgba(255,255,255,0.65); }
+        .menu-child:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .menu-child.active { background: #1890ff; color: #fff; }
+        .menu-group { padding: 8px 20px; font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 8px; }
+        .main { margin-left: 200px; }
+        .header { height: 48px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+        .header-title { font-size: 14px; font-weight: 500; }
+        .header-user { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #666; }
+        .content { padding: 24px; }
+        .card { background: #fff; border-radius: 2px; padding: 20px; margin-bottom: 16px; }
+        .card-title { font-size: 16px; font-weight: 500; margin-bottom: 16px; }
+        .form-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+        .form-item { display: flex; align-items: center; gap: 8px; }
+        .form-label { font-size: 13px; color: #666; white-space: nowrap; }
+        .form-input { height: 32px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 2px; font-size: 13px; outline: none; width: 160px; }
+        .form-input:focus { border-color: #1890ff; }
+        .form-select { height: 32px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 2px; font-size: 13px; outline: none; background: #fff; min-width: 140px; }
+        .btn { height: 32px; padding: 0 16px; border: none; border-radius: 2px; font-size: 13px; cursor: pointer; }
+        .btn-primary { background: #1890ff; color: #fff; }
+        .btn-primary:hover { background: #40a9ff; }
+        .btn-default { background: #fff; border: 1px solid #d9d9d9; color: #333; }
+        .btn-default:hover { color: #1890ff; border-color: #1890ff; }
+        .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .table th { text-align: left; padding: 12px 8px; border-bottom: 1px solid #e8e8e8; color: #666; font-weight: 500; }
+        .table td { padding: 12px 8px; border-bottom: 1px solid #f0f0f0; }
+        .table tr:hover { background: #fafafa; }
+        .link { color: #1890ff; cursor: pointer; }
+        .link:hover { text-decoration: underline; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 2px; font-size: 12px; }
+        .tag-green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .tag-yellow { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
+        .tag-red { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+        .page-title { font-size: 20px; font-weight: 500; margin-bottom: 20px; }
+        .tabs { display: flex; gap: 0; border-bottom: 1px solid #e8e8e8; margin-bottom: 20px; background: #fff; padding: 0 20px; }
+        .tab { padding: 14px 20px; font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent; color: #666; }
+        .tab.active { color: #1890ff; border-bottom-color: #1890ff; font-weight: 500; }
+        .tab:hover { color: #1890ff; }
+        .sub-content { display: none; }
+        .sub-content.active { display: block; }
+        .pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 13px; color: #999; }
+        .pagination-info { color: #999; }
+        .pagination-buttons { display: flex; gap: 4px; }
+        
+        /* 表格水平滚动容器 */
+        .table-scroll-container {
+            overflow-x: auto;
+            border: 1px solid #e8e8e8;
+            border-radius: 2px;
+        }
+        .table-scroll-container .table {
+            min-width: 1800px;
+        }
+        .table-scroll-container .table th:first-child,
+        .table-scroll-container .table td:first-child {
+            position: sticky;
+            left: 0;
+            background: #fff;
+            z-index: 1;
+        }
+        .table-scroll-container .table th:first-child {
+            background: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <span style="font-size: 20px; background: #1890ff; color: #fff; padding: 4px 8px; border-radius: 4px;">L</span>
+            <span>拉卡拉 | 运营平台</span>
+        </div>
+        <div class="menu">
+            <div class="menu-parent" onclick="location.href='vcc-account.html'">
+                <span>VCC账户管理</span>
+            </div>
+            
+            <div class="menu-parent" onclick="location.href='card-management.html'">
+                <span>卡管理</span>
+            </div>
+            
+            <div class="menu-parent" onclick="location.href='product-management.html'">
+                <span>产品管理</span>
+            </div>
+            
+            <div class="menu-parent" onclick="location.href='customer-management.html'">
+                <span>客户管理</span>
+            </div>
+            
+            <div class="menu-parent active" onclick="toggleMenu(this)">
+                <span>交易管理</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="menu-children show">
+                <div class="menu-child active">交易管理</div>
+                <div class="menu-child" onclick="location.href='reconciliation.html'">交易对账</div>
+            </div>
+            
+            <div class="menu-parent" onclick="toggleMenu(this)">
+                <span>系统管理</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="menu-children">
+                <div class="menu-child" onclick="location.href='role-permission.html'">角色权限</div>
+                <div class="menu-child" onclick="location.href='operation-log.html'">操作日志</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <span class="header-title">VCC运营平台</span>
+            <div class="header-user">
+                <span>484884@qq.com</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="page-title">交易管理</div>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('auth')">授权明细查询</div>
+                <div class="tab" onclick="switchTab('settle')">清算明细查询</div>
+                <div class="tab" onclick="switchTab('detail')">交易详情</div>
+            </div>
+
+            <!-- 授权明细查询 -->
+            <div class="sub-content active" id="content-auth">
+                <div class="card">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">卡ID:</span>
+                            <input class="form-input" placeholder="请输入卡ID" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">授权ID:</span>
+                            <input class="form-input" placeholder="请输入授权ID" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">源授权ID:</span>
+                            <input class="form-input" placeholder="请输入源授权ID" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">业务订单号:</span>
+                            <input class="form-input" placeholder="请输入业务订单号" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">交易类型:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>授权消费</option>
+                                <option>授权消费追加</option>
+                                <option>授权贷记</option>
+                                <option>授权退款</option>
+                                <option>账户验证</option>
+                                <option>余额查询</option>
+                                <option>授权冲正</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">币种:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>USD</option>
+                                <option>EUR</option>
+                                <option>GBP</option>
+                                <option>HKD</option>
+                                <option>JPY</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">卡产品:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>VISA-广告卡</option>
+                                <option>VISA-物流卡</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">交易状态:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>成功</option>
+                                <option>失败</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">授权时间:</span>
+                            <input class="form-input" type="date"/>
+                            <span style="margin: 0 8px;">-</span>
+                            <input class="form-input" type="date"/>
+                        </div>
+                        <div class="form-item" style="margin-left: auto;">
+                            <button class="btn btn-primary">查询</button>
+                            <button class="btn btn-default" style="margin-left: 8px;">导出</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-scroll-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>授权时间</th>
+                                    <th>业务订单号</th>
+                                    <th>授权ID</th>
+                                    <th>源授权ID</th>
+                                    <th>发卡行</th>
+                                    <th>卡ID</th>
+                                    <th>卡产品</th>
+                                    <th>交易类型</th>
+                                    <th>授权码</th>
+                                    <th>交易金额</th>
+                                    <th>交易币种</th>
+                                    <th>记账金额</th>
+                                    <th>记账币种</th>
+                                    <th>MCC</th>
+                                    <th>商户名称</th>
+                                    <th>商户国家</th>
+                                    <th>交易状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr onclick="switchTab('detail')" style="cursor: pointer;">
+                                    <td>2026-03-20 14:22:01</td>
+                                    <td style="font-family: monospace;">AUTH_992837461</td>
+                                    <td style="font-family: monospace;">AUTHID_882938461</td>
+                                    <td>-</td>
+                                    <td>拉卡拉国际</td>
+                                    <td style="font-family: monospace;">CARD_882938471</td>
+                                    <td>VISA-广告卡</td>
+                                    <td>授权消费</td>
+                                    <td style="font-family: monospace;">AUTH123456</td>
+                                    <td>$4,200.00</td>
+                                    <td>USD</td>
+                                    <td>$4,200.00</td>
+                                    <td>USD</td>
+                                    <td>5818</td>
+                                    <td>Google Ads</td>
+                                    <td>US</td>
+                                    <td><span class="tag tag-green">成功</span></td>
+                                    <td><span class="link">详情</span></td>
+                                </tr>
+                                <tr onclick="switchTab('detail')" style="cursor: pointer;">
+                                    <td>2026-03-20 12:05:33</td>
+                                    <td style="font-family: monospace;">AUTH_992837462</td>
+                                    <td style="font-family: monospace;">AUTHID_882938462</td>
+                                    <td>-</td>
+                                    <td>拉卡拉国际</td>
+                                    <td style="font-family: monospace;">CARD_882938472</td>
+                                    <td>VISA-广告卡</td>
+                                    <td>授权消费</td>
+                                    <td style="font-family: monospace;">AUTH123457</td>
+                                    <td>$1,280.50</td>
+                                    <td>USD</td>
+                                    <td>$1,280.50</td>
+                                    <td>USD</td>
+                                    <td>5399</td>
+                                    <td>Amazon Web Services</td>
+                                    <td>US</td>
+                                    <td><span class="tag tag-green">成功</span></td>
+                                    <td><span class="link">详情</span></td>
+                                </tr>
+                                <tr onclick="switchTab('detail')" style="cursor: pointer;">
+                                    <td>2026-03-20 11:30:00</td>
+                                    <td style="font-family: monospace;">AUTH_992837466</td>
+                                    <td style="font-family: monospace;">AUTHID_882938466</td>
+                                    <td style="font-family: monospace;">AUTH_992837461</td>
+                                    <td>拉卡拉国际</td>
+                                    <td style="font-family: monospace;">CARD_882938471</td>
+                                    <td>VISA-广告卡</td>
+                                    <td>授权消费追加</td>
+                                    <td style="font-family: monospace;">AUTH123458</td>
+                                    <td>$500.00</td>
+                                    <td>USD</td>
+                                    <td>$500.00</td>
+                                    <td>USD</td>
+                                    <td>5818</td>
+                                    <td>Google Ads</td>
+                                    <td>US</td>
+                                    <td><span class="tag tag-green">成功</span></td>
+                                    <td><span class="link">详情</span></td>
+                                </tr>
+                                <tr onclick="switchTab('detail')" style="cursor: pointer;">
+                                    <td>2026-03-20 10:15:00</td>
+                                    <td style="font-family: monospace;">AUTH_992837467</td>
+                                    <td style="font-family: monospace;">AUTHID_882938467</td>
+                                    <td>-</td>
+                                    <td>拉卡拉国际</td>
+                                    <td style="font-family: monospace;">CARD_882938473</td>
+                                    <td>VISA-物流卡</td>
+                                    <td>授权退款</td>
+                                    <td style="font-family: monospace;">AUTH123459</td>
+                                    <td>$299.00</td>
+                                    <td>USD</td>
+                                    <td>$299.00</td>
+                                    <td>USD</td>
+                                    <td>5411</td>
+                                    <td>Amazon Logistics</td>
+                                    <td>US</td>
+                                    <td><span class="tag tag-green">成功</span></td>
+                                    <td><span class="link">详情</span></td>
+                                </tr>
+                                <tr onclick="switchTab('detail')" style="cursor: pointer;">
+                                    <td>2026-03-20 09:15:10</td>
+                                    <td style="font-family: monospace;">AUTH_992837463</td>
+                                    <td style="font-family: monospace;">AUTHID_882938463</td>
+                                    <td>-</td>
+                                    <td>拉卡拉国际</td>
+                                    <td style="font-family: monospace;">CARD_882938471</td>
+                                    <td>VISA-广告卡</td>
+                                    <td>授权消费</td>
+                                    <td style="font-family: monospace;">AUTH123461</td>
+                                    <td>$750.00</td>
+                                    <td>USD</td>
+                                    <td>$750.00</td>
+                                    <td>USD</td>
+                                    <td>5818</td>
+                                    <td>Meta Platform Ads</td>
+                                    <td>US</td>
+                                    <td><span class="tag tag-red">失败</span></td>
+                                    <td><span class="link">详情</span></td>
+                                </tr>
+                                <tr onclick="switchTab('detail')" style="cursor: pointer;">
+                                    <td>2026-03-20 08:30:00</td>
+                                    <td style="font-family: monospace;">AUTH_992837469</td>
+                                    <td style="font-family: monospace;">AUTHID_882938469</td>
+                                    <td>-</td>
+                                    <td>拉卡拉国际</td>
+                                    <td style="font-family: monospace;">CARD_882938474</td>
+                                    <td>VISA-物流卡</td>
+                                    <td>授权消费</td>
+                                    <td style="font-family: monospace;">AUTH123462</td>
+                                    <td>€15,000.00</td>
+                                    <td>EUR</td>
+                                    <td>€15,000.00</td>
+                                    <td>EUR</td>
+                                    <td>5011</td>
+                                    <td>DHL Express</td>
+                                    <td>DE</td>
+                                    <td><span class="tag tag-red">失败</span></td>
+                                    <td><span class="link">详情</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination">
+                        <span class="pagination-info">显示第 1 至 6 项，共 25,892 项</span>
+                        <div class="pagination-buttons">
+                            <button class="btn btn-default" style="padding: 0 8px;">&lt;</button>
+                            <button class="btn btn-primary" style="padding: 0 12px;">1</button>
+                            <button class="btn btn-default" style="padding: 0 12px;">2</button>
+                            <button class="btn btn-default" style="padding: 0 8px;">&gt;</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 清算明细查询 -->
+            <div class="sub-content" id="content-settle">
+                <div class="card">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">卡ID:</span>
+                            <input class="form-input" placeholder="请输入卡ID" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">业务订单号:</span>
+                            <input class="form-input" placeholder="请输入业务订单号" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">清算交易ID:</span>
+                            <input class="form-input" placeholder="请输入清算交易ID" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">交易类型:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>消费完成</option>
+                                <option>退款完成</option>
+                                <option>贷记完成</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">清算时间:</span>
+                            <input class="form-input" type="date"/>
+                            <span style="margin: 0 8px;">-</span>
+                            <input class="form-input" type="date"/>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">币种:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>USD</option>
+                                <option>EUR</option>
+                                <option>HKD</option>
+                                <option>GBP</option>
+                                <option>JPY</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">卡产品:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>VISA-广告卡</option>
+                                <option>VISA-物流卡</option>
+                            </select>
+                        </div>
+                        <div class="form-item" style="margin-left: auto;">
+                            <button class="btn btn-primary">查询</button>
+                            <button class="btn btn-default" style="margin-left: 8px;">导出</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-scroll-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>清算时间</th>
+                                    <th>清算交易ID</th>
+                                    <th>业务订单号</th>
+                                    <th>授权ID</th>
+                                    <th>源授权ID</th>
+                                    <th>发卡行</th>
+                                    <th>卡ID</th>
+                                    <th>卡产品</th>
+                                    <th>交易类型</th>
+                                    <th>授权码</th>
+                                    <th>授权时间</th>
+                                    <th>交易金额</th>
+                                    <th>交易币种</th>
+                                    <th>记账金额</th>
+                                    <th>记账币种</th>
+                                    <th>MCC</th>
+                                    <th>商户名称</th>
+                                    <th>商户国家</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr onclick="switchTab('detail')" style="cursor: pointer;">
+                                    <td>2026-03-20 16:30:00</td>
+                                    <td style="font-family: monospace;">SETTLE_992837461</td>
+                                    <td style="font-family: monospace;">AUTH_992837461</td>
+                                    <td style="font-family: monospace;">AUTHID_882938461</td>
+                                    <td>-</td>
+                                    <td>拉卡拉国际</td>
+                                    <td style="font-family: monospace;">CARD_882938471</td>
+                                    <td>VISA-广告卡</td>
+                                    <td><span class="tag tag-green">消费完成</span></td>
+                                    <td style="font-family: monospace;">AUTH123456</td>
+                                    <td>2026-03-20 14:22:01</td>
+                                    <td>$4,200.00</td>
+                                    <td>USD</td>
+                                    <td>$4,187.40</td>
+                                    <td>USD</td>
+                                    <td>5818</td>
+                                    <td>Google Ads</td>
+                                    <td>US</td>
+                                    <td><span class="link">详情</span></td>
+                                </tr>
+                                <tr onclick="switchTab('detail')" style="cursor: pointer;">
+                                    <td>2026-03-20 10:00:00</td>
+                                    <td style="font-family: monospace;">SETTLE_992837464</td>
+                                    <td style="font-family: monospace;">AUTH_992837464</td>
+                                    <td style="font-family: monospace;">AUTHID_882938464</td>
+                                    <td>-</td>
+                                    <td>拉卡拉国际</td>
+                                    <td style="font-family: monospace;">CARD_882938473</td>
+                                    <td>VISA-广告卡</td>
+                                    <td><span class="tag tag-green">退款完成</span></td>
+                                    <td style="font-family: monospace;">AUTH123457</td>
+                                    <td>2026-03-19 22:45:12</td>
+                                    <td>-$9.99</td>
+                                    <td>USD</td>
+                                    <td>-$9.99</td>
+                                    <td>USD</td>
+                                    <td>5812</td>
+                                    <td>APPLE.COM/BILL</td>
+                                    <td>US</td>
+                                    <td><span class="link">详情</span></td>
+                                </tr>
+                                <tr onclick="switchTab('detail')" style="cursor: pointer;">
+                                    <td>2026-03-20 14:00:00</td>
+                                    <td style="font-family: monospace;">SETTLE_992837470</td>
+                                    <td style="font-family: monospace;">AUTH_992837470</td>
+                                    <td style="font-family: monospace;">AUTHID_882938470</td>
+                                    <td>-</td>
+                                    <td>拉卡拉国际</td>
+                                    <td style="font-family: monospace;">CARD_882938472</td>
+                                    <td>VISA-物流卡</td>
+                                    <td><span class="tag tag-green">消费完成</span></td>
+                                    <td style="font-family: monospace;">AUTH123458</td>
+                                    <td>2026-03-20 13:00:00</td>
+                                    <td>€2,500.00</td>
+                                    <td>EUR</td>
+                                    <td>€2,480.00</td>
+                                    <td>EUR</td>
+                                    <td>5011</td>
+                                    <td>DHL Express</td>
+                                    <td>DE</td>
+                                    <td><span class="link">详情</span></td>
+                                </tr>
+                                <tr onclick="switchTab('detail')" style="cursor: pointer;">
+                                    <td>-</td>
+                                    <td style="font-family: monospace;">-</td>
+                                    <td style="font-family: monospace;">AUTH_992837463</td>
+                                    <td style="font-family: monospace;">AUTHID_882938463</td>
+                                    <td style="font-family: monospace;">AUTH_992837461</td>
+                                    <td>拉卡拉国际</td>
+                                    <td style="font-family: monospace;">CARD_882938471</td>
+                                    <td>VISA-广告卡</td>
+                                    <td><span class="tag tag-yellow">消费撤销</span></td>
+                                    <td style="font-family: monospace;">AUTH123461</td>
+                                    <td>2026-03-20 09:15:10</td>
+                                    <td>$750.00</td>
+                                    <td>USD</td>
+                                    <td>-</td>
+                                    <td>USD</td>
+                                    <td>5818</td>
+                                    <td>Meta Platform Ads</td>
+                                    <td>US</td>
+                                    <td><span class="link">详情</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination">
+                        <span class="pagination-info">显示第 1 至 4 项，共 12,456 项</span>
+                        <div class="pagination-buttons">
+                            <button class="btn btn-default" style="padding: 0 8px;">&lt;</button>
+                            <button class="btn btn-primary" style="padding: 0 12px;">1</button>
+                            <button class="btn btn-default" style="padding: 0 12px;">2</button>
+                            <button class="btn btn-default" style="padding: 0 8px;">&gt;</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 交易详情 -->
+            <div class="sub-content" id="content-detail">
+                <div class="card">
+                    <div class="card-title">交易详情 - AUTH_992837461</div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">业务订单号</div><div style="font-weight: 500; font-family: monospace;">AUTH_992837461</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">授权ID</div><div style="font-weight: 500; font-family: monospace;">AUTHID_882938461</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">源授权ID</div><div style="font-weight: 500; font-family: monospace;">-</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">授权码</div><div style="font-weight: 500; font-family: monospace;">AUTH123456</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">发卡行</div><div style="font-weight: 500;">拉卡拉国际</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">卡ID</div><div style="font-weight: 500; font-family: monospace;">CARD_882938471</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">卡产品</div><div style="font-weight: 500;">VISA-广告卡</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">交易类型</div><div style="font-weight: 500;">授权消费</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">交易金额</div><div style="font-weight: 500;">$4,200.00 USD</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">币种</div><div style="font-weight: 500;">USD</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">记账金额</div><div style="font-weight: 500;">$4,200.00 USD</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">记账币种</div><div style="font-weight: 500;">USD</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">交易状态</div><div><span class="tag tag-green">成功</span></div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">MCC</div><div style="font-weight: 500;">5818</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">商户名称</div><div style="font-weight: 500;">Google Ads</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">商户国家</div><div style="font-weight: 500;">US</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">商户地址</div><div style="font-weight: 500; font-size: 12px;">123 Ad Street, Mountain View, CA 94043</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">授权时间</div><div style="font-weight: 500;">2026-03-20 14:22:01</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">清算交易ID</div><div style="font-weight: 500; font-family: monospace;">SETTLE_992837461</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">清算时间</div><div style="font-weight: 500;">2026-03-20 16:30:00</div></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">关联清算记录</div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>清算交易ID</th>
+                                <th>业务订单号</th>
+                                <th>清算时间</th>
+                                <th>交易金额</th>
+                                <th>记账金额</th>
+                                <th>结算金额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-family: monospace;">SETTLE_992837461</td>
+                                <td style="font-family: monospace;">AUTH_992837461</td>
+                                <td>2026-03-20 16:30:00</td>
+                                <td>$4,200.00</td>
+                                <td>$4,187.40</td>
+                                <td>$4,187.40</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu(el) {
+            el.classList.toggle('active');
+            const nextSibling = el.nextElementSibling;
+            if (nextSibling && nextSibling.classList.contains('menu-children')) {
+                nextSibling.classList.toggle('show');
+            }
+        }
+        
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const contents = document.querySelectorAll('.sub-content');
+            contents.forEach(c => c.classList.remove('active'));
+            document.getElementById('content-' + tabName).classList.add('active');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>拉卡拉国际VCC - 交易对账</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Microsoft YaHei', sans-serif; background-color: #f5f7fa; color: #333; }
+        .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 200px; background: #001529; color: #fff; }
+        .logo { padding: 16px 20px; font-size: 16px; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px; }
+        .menu { padding: 8px 0; }
+        .menu-parent { padding: 12px 20px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; color: rgba(255,255,255,0.65); }
+        .menu-parent:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .menu-parent.active { color: #fff; }
+        .menu-parent .arrow { font-size: 12px; transition: transform 0.2s; }
+        .menu-parent.active .arrow { transform: rotate(90deg); }
+        .menu-children { display: none; background: rgba(0,0,0,0.2); }
+        .menu-children.show { display: block; }
+        .menu-child { padding: 10px 20px 10px 40px; font-size: 14px; cursor: pointer; color: rgba(255,255,255,0.65); }
+        .menu-child:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .menu-child.active { background: #1890ff; color: #fff; }
+        .menu-group { padding: 8px 20px; font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 8px; }
+        .main { margin-left: 200px; }
+        .header { height: 48px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+        .header-title { font-size: 14px; font-weight: 500; }
+        .header-user { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #666; }
+        .content { padding: 24px; }
+        .dev-banner { background: #fff3e0; border: 2px solid #ff9800; border-radius: 4px; padding: 20px; margin-bottom: 24px; text-align: center; }
+        .dev-banner .dev-title { font-size: 18px; font-weight: 600; color: #e65100; margin-bottom: 8px; }
+        .dev-banner .dev-desc { font-size: 14px; color: #666; }
+        .card { background: #fff; border-radius: 2px; padding: 20px; margin-bottom: 16px; }
+        .disabled-overlay { opacity: 0.5; pointer-events: none; }
+        .card-title { font-size: 16px; font-weight: 500; margin-bottom: 16px; }
+        .form-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+        .form-item { display: flex; align-items: center; gap: 8px; }
+        .form-label { font-size: 13px; color: #666; white-space: nowrap; }
+        .form-input { height: 32px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 2px; font-size: 13px; outline: none; }
+        .form-input:focus { border-color: #1890ff; }
+        .form-select { height: 32px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 2px; font-size: 13px; outline: none; background: #fff; min-width: 120px; }
+        .btn { height: 32px; padding: 0 16px; border: none; border-radius: 2px; font-size: 13px; cursor: pointer; }
+        .btn-primary { background: #1890ff; color: #fff; }
+        .btn-primary:hover { background: #40a9ff; }
+        .btn-default { background: #fff; border: 1px solid #d9d9d9; color: #333; }
+        .btn-default:hover { color: #1890ff; border-color: #1890ff; }
+        .btn-danger { background: #ff4d4f; color: #fff; }
+        .btn-danger:hover { background: #ff7875; }
+        .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .table th { text-align: left; padding: 12px 8px; border-bottom: 1px solid #e8e8e8; color: #666; font-weight: 500; }
+        .table td { padding: 12px 8px; border-bottom: 1px solid #f0f0f0; }
+        .table tr:hover { background: #fafafa; }
+        .link { color: #1890ff; cursor: pointer; }
+        .link:hover { text-decoration: underline; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 2px; font-size: 12px; }
+        .tag-green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .tag-red { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+        .tag-yellow { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
+        .page-title { font-size: 20px; font-weight: 500; margin-bottom: 20px; }
+        .tabs { display: flex; gap: 0; border-bottom: 1px solid #e8e8e8; margin-bottom: 20px; background: #fff; padding: 0 20px; }
+        .tab { padding: 14px 20px; font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent; color: #666; }
+        .tab.active { color: #1890ff; border-bottom-color: #1890ff; font-weight: 500; }
+        .tab:hover { color: #1890ff; }
+        .sub-content { display: none; }
+        .sub-content.active { display: block; }
+        .stat-row { display: flex; gap: 16px; margin-bottom: 16px; }
+        .stat-box { flex: 1; background: #fafafa; border: 1px solid #e8e8e8; padding: 16px; border-radius: 2px; }
+        .stat-label { font-size: 13px; color: #666; margin-bottom: 4px; }
+        .stat-value { font-size: 20px; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <span style="font-size: 20px; background: #1890ff; color: #fff; padding: 4px 8px; border-radius: 4px;">L</span>
+            <span>拉卡拉 | 运营平台</span>
+        </div>
+        <div class="menu">
+            <div class="menu-parent" onclick="location.href='vcc-account.html'">
+                <span>VCC账户管理</span>
+            </div>
+            
+            <div class="menu-parent" onclick="location.href='card-management.html'">
+                <span>卡管理</span>
+            </div>
+            
+            <div class="menu-parent" onclick="location.href='product-management.html'">
+                <span>产品管理</span>
+            </div>
+            
+            <div class="menu-parent" onclick="location.href='customer-management.html'">
+                <span>客户管理</span>
+            </div>
+            
+            <div class="menu-parent active" onclick="toggleMenu(this)">
+                <span>交易管理</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="menu-children show">
+                <div class="menu-child" onclick="location.href='transaction-management.html'">交易管理</div>
+                <div class="menu-child active">交易对账</div>
+            </div>
+            
+            <div class="menu-parent" onclick="toggleMenu(this)">
+                <span>系统管理</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="menu-children">
+                <div class="menu-child" onclick="location.href='role-permission.html'">角色权限</div>
+                <div class="menu-child" onclick="location.href='operation-log.html'">操作日志</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <span class="header-title">VCC运营平台</span>
+            <div class="header-user">
+                <span>484884@qq.com</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="dev-banner">
+                <div class="dev-title">⚠️ 暂不开发</div>
+                <div class="dev-desc">交易对账功能本期暂不开发，后续版本再行规划</div>
+            </div>
+
+            <div class="page-title">交易对账</div>
+
+            <!-- Tab Navigation -->
+            <div class="tabs disabled-overlay">
+                <div class="tab active" onclick="switchTab('task')">对账任务</div>
+                <div class="tab" onclick="switchTab('exception')">异常处理</div>
+                <div class="tab" onclick="switchTab('detail')">对账详情</div>
+            </div>
+
+            <!-- 对账任务 -->
+            <div class="sub-content active disabled-overlay" id="content-task">
+                <div class="card">
+                    <div class="stat-row">
+                        <div class="stat-box">
+                            <div class="stat-label">今日待对账笔数</div>
+                            <div class="stat-value" style="color: #faad14;">128</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">今日已对账笔数</div>
+                            <div class="stat-value" style="color: #52c41a;">1,204</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">对账异常笔数</div>
+                            <div class="stat-value" style="color: #ff4d4f;">5</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">对账成功率</div>
+                            <div class="stat-value">99.6%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">对账日期:</span>
+                            <input class="form-input" type="date"/>
+                            <span style="margin: 0 8px;">-</span>
+                            <input class="form-input" type="date"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">对账状态:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>对账成功</option>
+                                <option>对账异常</option>
+                                <option>待对账</option>
+                            </select>
+                        </div>
+                        <div class="form-item" style="margin-left: auto;">
+                            <button class="btn btn-primary">查询</button>
+                            <button class="btn btn-default" style="margin-left: 8px;">发起对账</button>
+                        </div>
+                    </div>
+                    
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>对账批次号</th>
+                                <th>对账日期</th>
+                                <th>总笔数</th>
+                                <th>成功笔数</th>
+                                <th>异常笔数</th>
+                                <th>对账金额(USD)</th>
+                                <th>对账状态</th>
+                                <th>开始时间</th>
+                                <th>完成时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr onclick="switchTab('detail')" style="cursor: pointer;">
+                                <td style="font-family: monospace;">RC_20260320001</td>
+                                <td>2026-03-20</td>
+                                <td>1,332</td>
+                                <td>1,327</td>
+                                <td style="color: #ff4d4f;">5</td>
+                                <td>458,230.50</td>
+                                <td><span class="tag tag-yellow">对账中</span></td>
+                                <td>2026-03-20 00:00:05</td>
+                                <td>-</td>
+                                <td><span class="link">查看详情</span></td>
+                            </tr>
+                            <tr onclick="switchTab('detail')" style="cursor: pointer;">
+                                <td style="font-family: monospace;">RC_20260319001</td>
+                                <td>2026-03-19</td>
+                                <td>1,458</td>
+                                <td>1,458</td>
+                                <td style="color: #52c41a;">0</td>
+                                <td>512,840.00</td>
+                                <td><span class="tag tag-green">对账成功</span></td>
+                                <td>2026-03-19 00:00:02</td>
+                                <td>2026-03-19 00:05:32</td>
+                                <td><span class="link">查看详情</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 异常处理 -->
+            <div class="sub-content disabled-overlay" id="content-exception">
+                <div class="card">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">异常类型:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>金额不一致</option>
+                                <option>卡号不匹配</option>
+                                <option>商户信息不匹配</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">处理状态:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>待处理</option>
+                                <option>已处理</option>
+                            </select>
+                        </div>
+                        <div class="form-item" style="margin-left: auto;">
+                            <button class="btn btn-primary">查询</button>
+                        </div>
+                    </div>
+                    
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>交易流水号</th>
+                                <th>卡ID</th>
+                                <th>交易金额</th>
+                                <th>商户名称</th>
+                                <th>交易时间</th>
+                                <th>异常类型</th>
+                                <th>处理状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-family: monospace;">TXN_992837461</td>
+                                <td style="font-family: monospace;">CARD_882938471</td>
+                                <td>$4,200.00</td>
+                                <td>Google Ads</td>
+                                <td>2026-03-20 14:22</td>
+                                <td style="color: #ff4d4f;">金额不一致</td>
+                                <td><span class="tag tag-yellow">待处理</span></td>
+                                <td><span class="link">调整</span><span class="link" style="margin-left: 8px;">人工处理</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: monospace;">TXN_992837462</td>
+                                <td style="font-family: monospace;">CARD_882938472</td>
+                                <td>$1,280.50</td>
+                                <td>Amazon Web Services</td>
+                                <td>2026-03-20 12:05</td>
+                                <td style="color: #ff4d4f;">卡号不匹配</td>
+                                <td><span class="tag tag-yellow">待处理</span></td>
+                                <td><span class="link">调整</span><span class="link" style="margin-left: 8px;">人工处理</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 对账详情 -->
+            <div class="sub-content disabled-overlay" id="content-detail">
+                <div class="card">
+                    <div class="card-title">对账批次详情 - RC_20260319001</div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">对账批次号</div><div style="font-weight: 500;">RC_20260319001</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">对账日期</div><div style="font-weight: 500;">2026-03-19</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">对账状态</div><div><span class="tag tag-green">对账成功</span></div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">对账金额</div><div style="font-weight: 500;">$512,840.00</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">总笔数</div><div style="font-weight: 500;">1,458</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">成功笔数</div><div style="font-weight: 500; color: #52c41a;">1,458</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">异常笔数</div><div style="font-weight: 500; color: #52c41a;">0</div></div>
+                        <div><div style="color: #666; font-size: 13px; margin-bottom: 4px;">开始时间</div><div style="font-weight: 500;">2026-03-19 00:00:02</div></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">对账明细</div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>交易流水号</th>
+                                <th>卡ID</th>
+                                <th>金额</th>
+                                <th>商户名称</th>
+                                <th>对账结果</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td style="font-family: monospace;">TXN_992837461</td>
+                                <td style="font-family: monospace;">CARD_882938471</td>
+                                <td>$4,200.00</td>
+                                <td>Google Ads</td>
+                                <td><span class="tag tag-green">成功</span></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td style="font-family: monospace;">TXN_992837462</td>
+                                <td style="font-family: monospace;">CARD_882938472</td>
+                                <td>$1,280.50</td>
+                                <td>Amazon Web Services</td>
+                                <td><span class="tag tag-green">成功</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu(el) {
+            el.classList.toggle('active');
+            const nextSibling = el.nextElementSibling;
+            if (nextSibling && nextSibling.classList.contains('menu-children')) {
+                nextSibling.classList.toggle('show');
+            }
+        }
+        
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const contents = document.querySelectorAll('.sub-content');
+            contents.forEach(c => c.classList.remove('active'));
+            document.getElementById('content-' + tabName).classList.add('active');
+        }
+    </script>
+</body>
+</html>

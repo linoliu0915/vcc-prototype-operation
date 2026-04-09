@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>拉卡拉国际VCC - VCC账户管理</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Microsoft YaHei', sans-serif; background-color: #f5f7fa; color: #333; }
+        .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 200px; background: #001529; color: #fff; }
+        .logo { padding: 16px 20px; font-size: 16px; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px; }
+        .menu { padding: 8px 0; }
+        .menu-group { padding: 8px 20px; font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 8px; }
+        .menu-parent { padding: 12px 20px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; color: rgba(255,255,255,0.65); }
+        .menu-parent:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .menu-parent.active { color: #fff; }
+        .menu-parent .arrow { font-size: 12px; transition: transform 0.2s; }
+        .menu-parent.active .arrow { transform: rotate(90deg); }
+        .menu-children { display: none; background: rgba(0,0,0,0.2); }
+        .menu-children.show { display: block; }
+        .menu-child { padding: 10px 20px 10px 40px; font-size: 14px; cursor: pointer; color: rgba(255,255,255,0.65); }
+        .menu-child:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .menu-child.active { background: #1890ff; color: #fff; }
+        .main { margin-left: 200px; }
+        .header { height: 48px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+        .header-title { font-size: 14px; font-weight: 500; }
+        .header-user { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #666; }
+        .content { padding: 24px; }
+        .card { background: #fff; border-radius: 2px; padding: 20px; margin-bottom: 16px; }
+        .card-title { font-size: 16px; font-weight: 500; margin-bottom: 16px; }
+        .form-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+        .form-item { display: flex; align-items: center; gap: 8px; }
+        .form-label { font-size: 13px; color: #666; white-space: nowrap; }
+        .form-input { height: 32px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 2px; font-size: 13px; outline: none; }
+        .form-input:focus { border-color: #1890ff; }
+        .form-select { height: 32px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 2px; font-size: 13px; outline: none; background: #fff; min-width: 120px; }
+        .btn { height: 32px; padding: 0 16px; border: none; border-radius: 2px; font-size: 13px; cursor: pointer; }
+        .btn-primary { background: #1890ff; color: #fff; }
+        .btn-primary:hover { background: #40a9ff; }
+        .btn-default { background: #fff; border: 1px solid #d9d9d9; color: #333; }
+        .btn-default:hover { color: #1890ff; border-color: #1890ff; }
+        .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .table th { text-align: left; padding: 12px 8px; border-bottom: 1px solid #e8e8e8; color: #666; font-weight: 500; }
+        .table td { padding: 12px 8px; border-bottom: 1px solid #f0f0f0; }
+        .table tr:hover { background: #fafafa; }
+        .link { color: #1890ff; cursor: pointer; }
+        .link:hover { text-decoration: underline; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 2px; font-size: 12px; }
+        .tag-green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .tag-red { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; }
+        .tag-yellow { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
+        .tag-blue { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        .page-title { font-size: 20px; font-weight: 500; margin-bottom: 20px; }
+        .tabs { display: flex; gap: 0; border-bottom: 1px solid #e8e8e8; margin-bottom: 20px; background: #fff; padding: 0 20px; }
+        .tab { padding: 14px 20px; font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent; color: #666; }
+        .tab.active { color: #1890ff; border-bottom-color: #1890ff; font-weight: 500; }
+        .tab:hover { color: #1890ff; }
+        .sub-content { display: none; }
+        .sub-content.active { display: block; }
+        
+        /* 表格水平滚动容器 */
+        .table-scroll-container {
+            overflow-x: auto;
+            border: 1px solid #e8e8e8;
+            border-radius: 2px;
+        }
+        .table-scroll-container .table {
+            min-width: 1400px;
+        }
+        .table-scroll-container .table th:first-child,
+        .table-scroll-container .table td:first-child {
+            position: sticky;
+            left: 0;
+            background: #fff;
+            z-index: 1;
+        }
+        .table-scroll-container .table th:first-child {
+            background: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <span style="font-size: 20px; background: #1890ff; color: #fff; padding: 4px 8px; border-radius: 4px;">L</span>
+            <span>拉卡拉 | 运营平台</span>
+        </div>
+        <div class="menu">
+            <!-- VCC账户管理 -->
+            <div class="menu-parent active" onclick="location.href='vcc-account.html'">
+                <span>VCC账户管理</span>
+            </div>
+            
+            <!-- 卡管理 -->
+            <div class="menu-parent" onclick="location.href='card-management.html'">
+                <span>卡管理</span>
+            </div>
+            
+            <!-- 产品管理 -->
+            <div class="menu-parent" onclick="location.href='product-management.html'">
+                <span>产品管理</span>
+            </div>
+            
+            <!-- 客户管理 -->
+            <div class="menu-parent" onclick="location.href='customer-management.html'">
+                <span>客户管理</span>
+            </div>
+            
+            <!-- 交易管理 -->
+            <div class="menu-parent" onclick="toggleMenu(this)">
+                <span>交易管理</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="menu-children">
+                <div class="menu-child" onclick="location.href='transaction-management.html'">交易管理</div>
+                <div class="menu-child" onclick="location.href='reconciliation.html'">交易对账</div>
+            </div>
+            
+            <!-- 系统管理 -->
+            <div class="menu-parent" onclick="toggleMenu(this)">
+                <span>系统管理</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="menu-children">
+                <div class="menu-child" onclick="location.href='role-permission.html'">角色权限</div>
+                <div class="menu-child" onclick="location.href='operation-log.html'">操作日志</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <span class="header-title">VCC运营平台</span>
+            <div class="header-user">
+                <span>484884@qq.com</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="page-title">VCC账户管理</div>
+            
+            <!-- Tab Navigation -->
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('recharge')">充值订单记录</div>
+                <div class="tab" onclick="switchTab('flow')">账户资金流水</div>
+                <div class="tab" onclick="switchTab('balance')">账户余额查询</div>
+                <div class="tab" onclick="switchTab('adjust')">手工调账</div>
+            </div>
+
+            <!-- 充值订单记录 -->
+            <div class="sub-content active" id="content-recharge">
+                <div class="card">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">商户编号:</span>
+                            <input class="form-input" placeholder="请输入商户编号" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">商户名称:</span>
+                            <input class="form-input" placeholder="请输入商户名称" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">币种:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>USD</option>
+                                <option>EUR</option>
+                                <option>GBP</option>
+                                <option>HKD</option>
+                                <option>JPY</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">充值状态:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>成功</option>
+                                <option>失败</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">调拨状态:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>完成</option>
+                                <option>待处理</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">创建时间:</span>
+                            <input class="form-input" type="date"/>
+                            <span style="margin: 0 8px;">-</span>
+                            <input class="form-input" type="date"/>
+                        </div>
+                        <div class="form-item" style="margin-left: auto;">
+                            <button class="btn btn-primary">查询</button>
+                            <button class="btn btn-default" style="margin-left: 8px;">导出</button>
+                        </div>
+                    </div>
+                    
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>充值订单号</th>
+                                <th>商户号</th>
+                                <th>商户名称</th>
+                                <th>充值渠道</th>
+                                <th>币种</th>
+                                <th>金额</th>
+                                <th>充值状态</th>
+                                <th>调拨状态</th>
+                                <th>充值时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-family: monospace;">RECH_20260320001</td>
+                                <td>LG2603002323</td>
+                                <td>京东国际</td>
+                                <td>DBSHK</td>
+                                <td>USD</td>
+                                <td>150,000.00</td>
+                                <td><span class="tag tag-green">成功</span></td>
+                                <td><span class="tag tag-green">完成</span></td>
+                                <td>2026-03-20 14:30:25</td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: monospace;">RECH_20260320002</td>
+                                <td>LG2603002324</td>
+                                <td>阿里国际</td>
+                                <td>DBSHK</td>
+                                <td>USD</td>
+                                <td>200,000.00</td>
+                                <td><span class="tag tag-red">失败</span></td>
+                                <td><span class="tag tag-yellow">待处理</span></td>
+                                <td>2026-03-20 12:15:30</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 账户资金流水 -->
+            <div class="sub-content" id="content-flow">
+                <div class="card">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">商户号:</span>
+                            <input class="form-input" placeholder="请输入商户号" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">业务订单号:</span>
+                            <input class="form-input" placeholder="请输入业务订单号" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">币种:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>USD</option>
+                                <option>EUR</option>
+                                <option>GBP</option>
+                                <option>HKD</option>
+                                <option>JPY</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">资金变动方向:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>收入</option>
+                                <option>支出</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">业务场景:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>充值</option>
+                                <option>授权消费</option>
+                                <option>授权消费追加</option>
+                                <option>授权贷记</option>
+                                <option>授权退款</option>
+                                <option>账户验证</option>
+                                <option>余额查询</option>
+                                <option>授权冲正</option>
+                                <option>消费完成</option>
+                                <option>贷记完成</option>
+                                <option>退款完成</option>
+                                <option>调账</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">账户类型:</span>
+                            <select class="form-select" id="flow-account-type">
+                                <option>全部</option>
+                                <option>余额账户</option>
+                                <option>冻结账户</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">时间:</span>
+                            <input class="form-input" type="date"/>
+                            <span style="margin: 0 8px;">-</span>
+                            <input class="form-input" type="date"/>
+                        </div>
+                        <div class="form-item">
+                            <button class="btn btn-primary">查询</button>
+                            <button class="btn btn-default">导出</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="table-scroll-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>时间</th>
+                                    <th>记账流水号</th>
+                                    <th>业务订单号</th>
+                                    <th>卡ID</th>
+                                    <th>账户类型</th>
+                                    <th>币种</th>
+                                    <th>金额</th>
+                                    <th>资金变动方向</th>
+                                    <th>业务场景</th>
+                                    <th>费用场景</th>
+                                    <th>备注</th>
+                                </tr>
+                            </thead>
+                        <tbody>
+<tr>
+<td>2026-03-20 16:30:00</td>
+<td style="font-family: monospace;">GL_882938461</td>
+<td style="font-family: monospace;">RECH_882938461</td>
+<td>-</td>
+<td>余额账户</td>
+<td>USD</td>
+<td style="color: #52c41a; font-weight: 500;">+50,000.00</td>
+<td><span class="tag tag-green">收入</span></td>
+<td>充值</td>
+<td>交易金额</td>
+<td>-</td>
+</tr>
+                            <tr>
+                                <td>2026-03-20 14:22:01</td>
+                                <td style="font-family: monospace;">GL_992837461_01</td>
+                                <td style="font-family: monospace;">AUTH_992837461</td>
+                                <td style="font-family: monospace;">CARD_882938471</td>
+                                <td>余额账户</td>
+                                <td>USD</td>
+                                <td style="color: #ff4d4f; font-weight: 500;">-4,200.00</td>
+                                <td><span class="tag tag-red">支出</span></td>
+                                <td>授权消费</td>
+                                <td>交易金额</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>2026-03-20 14:22:02</td>
+                                <td style="font-family: monospace;">GL_992837461_02</td>
+                                <td style="font-family: monospace;">AUTH_992837461</td>
+                                <td style="font-family: monospace;">CARD_882938471</td>
+                                <td>冻结账户</td>
+                                <td>USD</td>
+                                <td style="color: #52c41a; font-weight: 500;">+4,200.00</td>
+                                <td><span class="tag tag-green">收入</span></td>
+                                <td>授权消费</td>
+                                <td>交易金额</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>2026-03-20 14:45:00</td>
+                                <td style="font-family: monospace;">GL_992837461_03</td>
+                                <td style="font-family: monospace;">SETTLE_992837461</td>
+                                <td style="font-family: monospace;">CARD_882938471</td>
+                                <td>冻结账户</td>
+                                <td>USD</td>
+                                <td style="color: #ff4d4f; font-weight: 500;">-4,200.00</td>
+                                <td><span class="tag tag-red">支出</span></td>
+                                <td>消费完成</td>
+                                <td>交易金额</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>2026-03-20 14:45:01</td>
+                                <td style="font-family: monospace;">GL_992837461_04</td>
+                                <td style="font-family: monospace;">SETTLE_992837461</td>
+                                <td style="font-family: monospace;">CARD_882938471</td>
+                                <td>余额账户</td>
+                                <td>USD</td>
+                                <td style="color: #ff4d4f; font-weight: 500;">-12.60</td>
+                                <td><span class="tag tag-red">支出</span></td>
+                                <td>消费完成</td>
+                                <td>手续费</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>2026-03-19 10:30:00</td>
+                                <td style="font-family: monospace;">GL_882938001</td>
+                                <td style="font-family: monospace;">REFUND_882938001</td>
+                                <td style="font-family: monospace;">CARD_882938472</td>
+                                <td>余额账户</td>
+                                <td>USD</td>
+                                <td style="color: #52c41a; font-weight: 500;">+299.00</td>
+                                <td><span class="tag tag-green">收入</span></td>
+                                <td>退款完成</td>
+                                <td>交易金额</td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 账户余额查询 -->
+            <div class="sub-content" id="content-balance">
+                <div class="card">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">商户号:</span>
+                            <input class="form-input" placeholder="请输入商户号" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">账户类型:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>余额账户</option>
+                                <option>冻结账户</option>
+                            </select>
+                        </div>
+                        <div class="form-item" style="margin-left: auto;">
+                            <button class="btn btn-primary">查询</button>
+                            <button class="btn btn-default" style="margin-left: 8px;">导出</button>
+                        </div>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>商户号</th>
+                                <th>商户名称</th>
+                                <th>账户类型</th>
+                                <th>USD</th>
+                                <th>EUR</th>
+                                <th>GBP</th>
+                                <th>HKD</th>
+                                <th>JPY</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>LG2603002323</td>
+                                <td>京东国际</td>
+                                <td>余额账户</td>
+                                <td>1,248,502.50</td>
+                                <td>85,000.00</td>
+                                <td>0.00</td>
+                                <td>500,000.00</td>
+                                <td>0.00</td>
+                                <td><span class="link" onclick="viewFlow('LG2603002323')">查看流水</span></td>
+                            </tr>
+                            <tr>
+                                <td>LG2603002323</td>
+                                <td>京东国际</td>
+                                <td>冻结账户</td>
+                                <td>4,200.00</td>
+                                <td>0.00</td>
+                                <td>0.00</td>
+                                <td>0.00</td>
+                                <td>0.00</td>
+                                <td><span class="link" onclick="viewFlow('LG2603002323')">查看流水</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 手工调账 -->
+            <div class="sub-content" id="content-adjust">
+                <div class="card">
+                    <div class="card-title">手工调账申请</div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">商户编号:</span>
+                            <input class="form-input" placeholder="请输入商户编号" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">调账类型:</span>
+                            <select class="form-select">
+                                <option>收入</option>
+                                <option>支出</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">币种:</span>
+                            <select class="form-select">
+                                <option>USD</option>
+                                <option>EUR</option>
+                                <option>GBP</option>
+                                <option>HKD</option>
+                                <option>JPY</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">金额:</span>
+                            <input class="form-input" placeholder="0.00" type="number"/>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">备注:</span>
+                            <input class="form-input" placeholder="请输入调账备注" type="text" style="width: 400px;"/>
+                        </div>
+                        <div class="form-item" style="margin-left: auto;">
+                            <button class="btn btn-primary">提交调账</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">调账申请查询</div>
+                    <div class="form-row">
+                        <div class="form-item">
+                            <span class="form-label">商户编号:</span>
+                            <input class="form-input" placeholder="请输入商户编号" type="text"/>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">调账类型:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>收入</option>
+                                <option>支出</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">审核状态:</span>
+                            <select class="form-select">
+                                <option>全部</option>
+                                <option>待审核</option>
+                                <option>已通过</option>
+                                <option>已拒绝</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <span class="form-label">申请时间:</span>
+                            <input class="form-input" type="date"/>
+                            <span style="margin: 0 8px;">-</span>
+                            <input class="form-input" type="date"/>
+                        </div>
+                        <div class="form-item">
+                            <button class="btn btn-primary">查询</button>
+                        </div>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>调账单号</th>
+                                <th>商户编号</th>
+                                <th>商户名称</th>
+                                <th>调账类型</th>
+                                <th>币种</th>
+                                <th>金额</th>
+                                <th>申请人</th>
+                                <th>申请时间</th>
+                                <th>审核状态</th>
+                                <th>审核人</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-family: monospace;">ADJ_20260320001</td>
+                                <td>LG2603002323</td>
+                                <td>京东国际</td>
+                                <td><span class="tag tag-blue">收入</span></td>
+                                <td>USD</td>
+                                <td>5,000.00</td>
+                                <td>张经理</td>
+                                <td>2026-03-20 10:30:00</td>
+                                <td><span class="tag tag-yellow">待审核</span></td>
+                                <td>-</td>
+                                <td>
+                                    <span class="link" onclick="auditAdjust('ADJ_20260320001', 'pass')">通过</span>
+                                    <span class="link" style="margin-left: 8px; color: #ff4d4f;" onclick="auditAdjust('ADJ_20260320001', 'reject')">拒绝</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: monospace;">ADJ_20260319001</td>
+                                <td>LG2603002324</td>
+                                <td>阿里国际</td>
+                                <td><span class="tag tag-red">支出</span></td>
+                                <td>USD</td>
+                                <td>2,000.00</td>
+                                <td>李经理</td>
+                                <td>2026-03-19 14:20:00</td>
+                                <td><span class="tag tag-green">已通过</span></td>
+                                <td>系统管理员</td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu(el) {
+            const children = el.nextElementSibling;
+            const arrow = el.querySelector('.arrow');
+            children.classList.toggle('show');
+            el.classList.toggle('active');
+            if (arrow) arrow.classList.toggle('rotate');
+        }
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            const contents = document.querySelectorAll('.sub-content');
+            contents.forEach(c => c.classList.remove('active'));
+            document.getElementById('content-' + tabName).classList.add('active');
+        }
+        function viewFlow(merchantNo) {
+            switchTab('flow');
+            setTimeout(() => {
+                const merchantInput = document.querySelector('#content-flow input[type="text"]');
+                if (merchantInput) merchantInput.value = merchantNo;
+            }, 0);
+        }
+        function auditAdjust(adjId, action) {
+            const statusMap = {
+                'pass': '已通过',
+                'reject': '已拒绝'
+            };
+            const confirmMsg = action === 'pass' ? '确认通过该调账申请？' : '确认拒绝该调账申请？';
+            if (confirm(confirmMsg)) {
+                alert('调账申请 ' + adjId + ' 已' + statusMap[action]);
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
