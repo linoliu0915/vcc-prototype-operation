@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>拉卡拉国际VCC - 操作日志</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Microsoft YaHei', sans-serif; background-color: #f5f7fa; color: #333; }
+        .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 200px; background: #001529; color: #fff; }
+        .logo { padding: 16px 20px; font-size: 16px; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px; }
+        .menu { padding: 8px 0; }
+        .menu-parent { padding: 12px 20px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; color: rgba(255,255,255,0.65); }
+        .menu-parent:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .menu-parent.active { color: #fff; }
+        .menu-parent .arrow { font-size: 12px; transition: transform 0.2s; }
+        .menu-parent.active .arrow { transform: rotate(90deg); }
+        .menu-children { display: none; background: rgba(0,0,0,0.2); }
+        .menu-children.show { display: block; }
+        .menu-child { padding: 10px 20px 10px 40px; font-size: 14px; cursor: pointer; color: rgba(255,255,255,0.65); }
+        .menu-child:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .menu-child.active { background: #1890ff; color: #fff; }
+        .menu-group { padding: 8px 20px; font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 8px; }
+        .main { margin-left: 200px; }
+        .header { height: 48px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+        .header-title { font-size: 14px; font-weight: 500; }
+        .header-user { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #666; }
+        .content { padding: 24px; }
+        .card { background: #fff; border-radius: 2px; padding: 20px; margin-bottom: 16px; }
+        .card-title { font-size: 16px; font-weight: 500; margin-bottom: 16px; }
+        .form-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+        .form-item { display: flex; align-items: center; gap: 8px; }
+        .form-label { font-size: 13px; color: #666; white-space: nowrap; }
+        .form-input { height: 32px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 2px; font-size: 13px; outline: none; }
+        .form-input:focus { border-color: #1890ff; }
+        .form-select { height: 32px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 2px; font-size: 13px; outline: none; background: #fff; min-width: 120px; }
+        .btn { height: 32px; padding: 0 16px; border: none; border-radius: 2px; font-size: 13px; cursor: pointer; }
+        .btn-primary { background: #1890ff; color: #fff; }
+        .btn-primary:hover { background: #40a9ff; }
+        .btn-default { background: #fff; border: 1px solid #d9d9d9; color: #333; }
+        .btn-default:hover { color: #1890ff; border-color: #1890ff; }
+        .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .table th { text-align: left; padding: 12px 8px; border-bottom: 1px solid #e8e8e8; color: #666; font-weight: 500; }
+        .table td { padding: 12px 8px; border-bottom: 1px solid #f0f0f0; }
+        .table tr:hover { background: #fafafa; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 2px; font-size: 12px; }
+        .tag-green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .tag-blue { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        .tag-yellow { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
+        .page-title { font-size: 20px; font-weight: 500; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <span style="font-size: 20px; background: #1890ff; color: #fff; padding: 4px 8px; border-radius: 4px;">L</span>
+            <span>拉卡拉 | 运营平台</span>
+        </div>
+        <div class="menu">
+            <!-- VCC账户管理 -->
+            <div class="menu-parent" onclick="toggleMenu(this)">
+                <span>VCC账户管理</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="menu-children">
+                <div class="menu-child" onclick="location.href='vcc-account.html'">充值订单查询</div>
+                <div class="menu-child" onclick="location.href='vcc-account.html'">账户资金流水</div>
+                <div class="menu-child" onclick="location.href='vcc-account.html'">账户余额查询</div>
+                <div class="menu-child" onclick="location.href='vcc-account.html'">手工调账</div>
+            </div>
+
+            <!-- 卡管理 -->
+            <div class="menu-parent" onclick="location.href='card-management.html'">
+                <span>卡管理</span>
+            </div>
+
+            <!-- 产品管理 -->
+            <div class="menu-parent" onclick="location.href='product-management.html'">
+                <span>产品管理</span>
+            </div>
+
+            <!-- 客户管理 -->
+            <div class="menu-parent" onclick="location.href='customer-management.html'">
+                <span>客户管理</span>
+            </div>
+
+            <!-- 交易管理 -->
+            <div class="menu-parent" onclick="toggleMenu(this)">
+                <span>交易管理</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="menu-children">
+                <div class="menu-child" onclick="location.href='transaction-management.html'">交易管理</div>
+                <div class="menu-child" onclick="location.href='reconciliation.html'">交易对账</div>
+            </div>
+
+            <!-- 系统管理 -->
+            <div class="menu-parent active" onclick="toggleMenu(this)">
+                <span>系统管理</span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="menu-children show">
+                <div class="menu-child" onclick="location.href='role-permission.html'">角色权限</div>
+                <div class="menu-child active">操作日志</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <span class="header-title">VCC运营平台</span>
+            <div class="header-user">
+                <span>484884@qq.com</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="page-title">操作日志</div>
+            
+            <div class="card">
+                <div class="card-title">日志查询</div>
+                <div class="form-row">
+                    <div class="form-item">
+                        <span class="form-label">操作用户:</span>
+                        <input class="form-input" placeholder="请输入用户名" type="text"/>
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">操作模块:</span>
+                        <select class="form-select">
+                            <option>全部</option>
+                            <option>VCC账户管理</option>
+                            <option>卡管理</option>
+                            <option>客户管理</option>
+                            <option>交易管理</option>
+                            <option>系统管理</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">操作类型:</span>
+                        <select class="form-select">
+                            <option>全部</option>
+                            <option>查询</option>
+                            <option>新增</option>
+                            <option>修改</option>
+                            <option>删除</option>
+                            <option>审核</option>
+                            <option>导出</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <span class="form-label">操作结果:</span>
+                        <select class="form-select">
+                            <option>全部</option>
+                            <option>成功</option>
+                            <option>失败</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-item">
+                        <span class="form-label">操作时间:</span>
+                        <input class="form-input" type="date"/>
+                        <span style="margin: 0 8px;">-</span>
+                        <input class="form-input" type="date"/>
+                    </div>
+                    <div class="form-item" style="margin-left: auto;">
+                        <button class="btn btn-primary">查询</button>
+                        <button class="btn btn-default" style="margin-left: 8px;">导出</button>
+                    </div>
+                </div>
+                
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>日志ID</th>
+                            <th>操作时间</th>
+                            <th>操作用户</th>
+                            <th>用户角色</th>
+                            <th>操作模块</th>
+                            <th>操作类型</th>
+                            <th>操作结果</th>
+                            <th>操作描述</th>
+                            <th>IP地址</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-family: monospace;">LOG_20260320001</td>
+                            <td>2026-03-20 14:30:25</td>
+                            <td>admin</td>
+                            <td>超级管理员</td>
+                            <td>卡管理</td>
+                            <td>修改</td>
+                            <td><span class="tag tag-green">成功</span></td>
+                            <td>修改卡CARD_882938471单笔限额: $5,000.00</td>
+                            <td style="font-family: monospace;">192.168.1.100</td>
+                        </tr>
+                        <tr>
+                            <td style="font-family: monospace;">LOG_20260320002</td>
+                            <td>2026-03-20 12:15:30</td>
+                            <td>operator01</td>
+                            <td>运营管理员</td>
+                            <td>VCC账户管理</td>
+                            <td>审核</td>
+                            <td><span class="tag tag-green">成功</span></td>
+                            <td>审核通过充值订单: RECH_20260320002</td>
+                            <td style="font-family: monospace;">192.168.1.101</td>
+                        </tr>
+                        <tr>
+                            <td style="font-family: monospace;">LOG_20260320003</td>
+                            <td>2026-03-20 10:45:12</td>
+                            <td>finance01</td>
+                            <td>财务管理员</td>
+                            <td>VCC账户管理</td>
+                            <td>手工调账</td>
+                            <td><span class="tag tag-green">成功</span></td>
+                            <td>为商户LG2603002323调账+USD 50,000.00</td>
+                            <td style="font-family: monospace;">192.168.1.102</td>
+                        </tr>
+                        <tr>
+                            <td style="font-family: monospace;">LOG_20260320004</td>
+                            <td>2026-03-20 09:20:05</td>
+                            <td>operator02</td>
+                            <td>运营管理员</td>
+                            <td>客户管理</td>
+                            <td>新增</td>
+                            <td><span class="tag tag-green">成功</span></td>
+                            <td>新增客户: 拼多多出海 LG2603002325</td>
+                            <td style="font-family: monospace;">192.168.1.103</td>
+                        </tr>
+                        <tr>
+                            <td style="font-family: monospace;">LOG_20260320005</td>
+                            <td>2026-03-20 08:10:45</td>
+                            <td>risk01</td>
+                            <td>风控管理员</td>
+                            <td>交易管理</td>
+                            <td>查询</td>
+                            <td><span class="tag tag-green">成功</span></td>
+                            <td>查询异常交易记录，导出报表</td>
+                            <td style="font-family: monospace;">192.168.1.104</td>
+                        </tr>
+                        <tr>
+                            <td style="font-family: monospace;">LOG_20260319001</td>
+                            <td>2026-03-19 16:30:00</td>
+                            <td>operator03</td>
+                            <td>运营管理员</td>
+                            <td>卡管理</td>
+                            <td>锁定</td>
+                            <td><span class="tag tag-yellow">失败</span></td>
+                            <td style="color: #ff4d4f;">锁定卡CARD_882938475失败: 卡不存在</td>
+                            <td style="font-family: monospace;">192.168.1.105</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="display: flex; justify-content: space-between; margin-top: 16px; font-size: 13px; color: #999;">
+                    <span>显示第 1 至 6 项，共 12,458 项</span>
+                    <div style="display: flex; gap: 4px;">
+                        <button class="btn btn-default" style="padding: 0 8px;">&lt;</button>
+                        <button class="btn btn-primary" style="padding: 0 12px;">1</button>
+                        <button class="btn btn-default" style="padding: 0 12px;">2</button>
+                        <button class="btn btn-default" style="padding: 0 12px;">3</button>
+                        <button class="btn btn-default" style="padding: 0 8px;">&gt;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu(el) {
+            el.classList.toggle('active');
+            const nextSibling = el.nextElementSibling;
+            if (nextSibling && nextSibling.classList.contains('menu-children')) {
+                nextSibling.classList.toggle('show');
+            }
+        }
+    </script>
+</body>
+</html>
